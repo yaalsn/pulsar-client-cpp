@@ -46,7 +46,10 @@ jobs:
           ./docker-build.sh
 
       - name: run c++ tests
-        run: ./pulsar-cpp-client/docker-tests.sh
+        run: |
+          echo "Run cpp client unit test"
+          cd pulsar-cpp-client
+          ./docker-tests.sh
 
       - name: Upload test-logs
         uses: actions/upload-artifact@v3
