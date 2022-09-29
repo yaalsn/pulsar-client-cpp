@@ -20,33 +20,20 @@
 
 set -e
 
-SRC_DIR=$(git rev-parse --show-toplevel)
-cd $SRC_DIR
-
-if [ -f /.dockerenv ]; then
-    # When running tests inside docker. Unpack the pulsar tgz
-    # because otherwise the classpath might not be correct
-    # in picking up the jars from local maven repo
-    export PULSAR_DIR=/tmp/pulsar-test-dist
-    rm -rf $PULSAR_DIR
-    mkdir $PULSAR_DIR
-    TGZ=$(ls -1 $SRC_DIR/distribution/server/target/apache-pulsar*bin.tar.gz | head -1)
-    tar -xzf $TGZ -C $PULSAR_DIR --strip-components 1
-else
-    export PULSAR_DIR=$SRC_DIR
-fi
-
+PULSAR_DIR=/pulsar
+SRC_DIR=/pulsar/pulsar-client-cpp
 DATA_DIR=/tmp/pulsar-test-data
+
 rm -rf $DATA_DIR
 mkdir -p $DATA_DIR
 
 # Set up basic authentication
-cp $SRC_DIR/pulsar-client-cpp/test-conf/.htpasswd $DATA_DIR/.htpasswd
+cp $SRC_DIR/test-conf/.htpasswd $DATA_DIR/.htpasswd
 export PULSAR_EXTRA_OPTS=-Dpulsar.auth.basic.conf=$DATA_DIR/.htpasswd
 
 # Copy TLS test certificates
 mkdir -p $DATA_DIR/certs
-cp $SRC_DIR/pulsar-broker/src/test/resources/authentication/tls/*.pem $DATA_DIR/certs
+cp $SRC_DIR/test-tls/*.pem $DATA_DIR/certs
 
 # Generate secret key and token
 mkdir -p $DATA_DIR/tokens
@@ -57,7 +44,7 @@ $PULSAR_DIR/bin/pulsar tokens create \
             --secret-key file:///$DATA_DIR/tokens/secret.key \
             > $DATA_DIR/tokens/token.txt
 
-export PULSAR_STANDALONE_CONF=$SRC_DIR/pulsar-client-cpp/test-conf/standalone-ssl.conf
+export PULSAR_STANDALONE_CONF=$SRC_DIR/test-conf/standalone-ssl.conf
 $PULSAR_DIR/bin/pulsar-daemon start standalone \
         --no-functions-worker --no-stream-storage \
         --bookkeeper-dir $DATA_DIR/bookkeeper
@@ -67,7 +54,7 @@ until curl http://localhost:8080/metrics > /dev/null 2>&1 ; do sleep 1; done
 
 echo "-- Pulsar service is ready -- Configure permissions"
 
-export PULSAR_CLIENT_CONF=$SRC_DIR/pulsar-client-cpp/test-conf/client-ssl.conf
+export PULSAR_CLIENT_CONF=$SRC_DIR/test-conf/client-ssl.conf
 
 # Create "standalone" cluster if it does not exist
 $PULSAR_DIR/bin/pulsar-admin clusters list | grep -q '^standalone$' ||

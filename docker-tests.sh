@@ -32,10 +32,10 @@ fi
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
-BUILD_IMAGE_NAME="${BUILD_IMAGE_NAME:-apachepulsar/pulsar-build}"
-BUILD_IMAGE_VERSION="${BUILD_IMAGE_VERSION:-ubuntu-20.04}"
+PULSAR_IMAGE_NAME="${PULSAR_IMAGE_NAME:-apachepulsar/pulsar}"
+PULSAR_IMAGE_VERSION="${PULSAR_IMAGE_VERSION:-2.10.1}"
 
-IMAGE="$BUILD_IMAGE_NAME:$BUILD_IMAGE_VERSION"
+IMAGE="$PULSAR_IMAGE_NAME:$PULSAR_IMAGE_VERSION"
 
 echo "---- Testing Pulsar C++ client using image $IMAGE (type --help for more options)"
 
@@ -43,7 +43,7 @@ docker pull $IMAGE
 
 CONTAINER_LABEL="pulsartests=$$"
 export GTEST_COLOR=${GTEST_COLOR:-no}
-DOCKER_CMD="docker run -e GTEST_COLOR -i -l $CONTAINER_LABEL -v $ROOT_DIR:/pulsar-client-cpp $IMAGE"
+DOCKER_CMD="docker run --platform linux/amd64 -u root -e GTEST_COLOR -i -l $CONTAINER_LABEL -v $ROOT_DIR:/pulsar/pulsar-client-cpp $IMAGE"
 
 
 for args in "$@"
@@ -66,8 +66,7 @@ if [ "$GTEST_COLOR" = "no" ]; then
 fi
 
 # Java17 is required for CLI e.g) bin/pulsar create-token
-$DOCKER_CMD bash -c "apt-get -y install openjdk-17-jre-headless &&\
- set -o pipefail; cd /pulsar-client-cpp && ./run-unit-tests.sh ${tests} $DISABLE_COLOR_OUTPUT"
+$DOCKER_CMD bash -c "set -o pipefail; cd /pulsar/pulsar-client-cpp && ./run-unit-tests.sh ${tests} $DISABLE_COLOR_OUTPUT"
 RES=$?
 if [ $RES -ne 0 ]; then
   (
