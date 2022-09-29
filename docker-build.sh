@@ -23,9 +23,6 @@
 # Fail script in case of errors
 set -e
 
-ROOT_DIR=$(git rev-parse --show-toplevel)
-cd $ROOT_DIR/pulsar-client-cpp
-
 BUILD_IMAGE_NAME="${BUILD_IMAGE_NAME:-apachepulsar/pulsar-build}"
 BUILD_IMAGE_VERSION="${BUILD_IMAGE_VERSION:-ubuntu-20.04}"
 
