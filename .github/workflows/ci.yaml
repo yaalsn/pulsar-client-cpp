@@ -39,11 +39,11 @@ jobs:
         with:
           path: pulsar-cpp-client
 
-      - name: build cpp artifacts
-        run: |
-          echo "Build C++ client library"
-          cd pulsar-cpp-client
-          ./docker-build.sh
+#      - name: build cpp artifacts
+#        run: |
+#          echo "Build C++ client library"
+#          cd pulsar-cpp-client
+#          ./docker-build.sh
 
       - name: run c++ tests
         run: |
