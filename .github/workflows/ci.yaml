@@ -36,19 +36,21 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+        with:
+          path: pulsar-cpp-client
 
       - name: build cpp artifacts
         run: |
           echo "Build C++ client library"
-          ls -al
-          ./docker-build.sh
+          ./pulsar-cpp-client/docker-build.sh
 
       - name: run c++ tests
-        run: ./docker-tests.sh
+        run: ./pulsar-cpp-client/docker-tests.sh
 
       - name: Upload test-logs
         uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
           name: cpp-tests-logs
-          path: test-logs
+          path: pulsar-cpp-client/test-logs
+          retention-days: 15
