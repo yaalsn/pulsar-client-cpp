@@ -21,7 +21,7 @@ name: CI
 on:
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   cpp-unit-tests:
-    name: CI - CPP, Python Tests
+    name: CI - CPP Unit Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
